@@ -1,9 +1,8 @@
 import streamlit as st
-import time 
 from utils import cria_chain_conversa, folder_files
 
 def chat_window():
-    st.header("🤖Bem Vindo ao ChatPDF", divider=True)
+    st.header("SensorChat", divider=True)
     if not 'chain' in st.session_state:
         st.error("Faça o upload de PDFs para começar")
         st.stop()
