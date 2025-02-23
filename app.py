@@ -2,7 +2,9 @@ import streamlit as st
 from utils import cria_chain_conversa, folder_files
 import streamlit as st
 
-openai_api_key = st.secrets["openai"]["api_key"]
+import os
+openai_api_key = os.getenv('OPENAI_API_KEY')
+
 
 def chat_window():
     st.header("SensorChat", divider=True)
