@@ -57,13 +57,13 @@ def cria_chain_conversa():
                                       output_key="answer")
     retriever = vector_store.as_retriever()
 
-    # Definição do prompt corrigido
+    # Definição do prompt com fallback
     prompt_template = """
     Você é um atendente de suporte técnico de uma empresa. Sua tarefa é auxiliar clientes que possuem dúvidas ou problemas com equipamentos.
     Para cada dúvida apresentada, forneça uma explicação clara e objetiva, detalhando passo a passo o que o cliente precisa fazer para resolver a questão.
     Utilize as informações disponíveis nos documentos fornecidos para embasar suas respostas.
 
-    Se o documento não contiver a informação necessária, diga ao cliente que não encontrou essa informação e recomende que ele entre em contato com o suporte técnico.
+    Se os documentos não contiverem a informação necessária, responda educadamente que não foi possível encontrar essa informação e recomende que o cliente entre em contato com o suporte técnico.
 
     Histórico da conversa:
     {chat_history}
@@ -74,7 +74,10 @@ def cria_chain_conversa():
     Pergunta do cliente:
     {question}
 
-    Responda de forma clara e detalhada.
+    Se as informações relevantes do documento estiverem vazias ou irrelevantes, responda com:
+    "Desculpe, não encontrei essa informação nos documentos. Recomendo entrar em contato com o suporte técnico."
+
+    Caso contrário, responda de forma clara e detalhada.
     """
 
     prompt = PromptTemplate(
@@ -93,4 +96,3 @@ def cria_chain_conversa():
     
     st.session_state["chain"] = chat_chain
     return chat_chain
-
