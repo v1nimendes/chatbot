@@ -30,21 +30,24 @@ def chat_window():
         chat = container.chat_message("ai")
         chat.markdown("Gerando Resposta")
         resposta = chain({"question": nova_mensagem})
-        chat.markdown(resposta['answer'])
-        st.rerun()
+        chat.markdown(resposta['answer'])  # Corrigido para mostrar a resposta
 
 def main():
     with st.sidebar:
         st.header("Upload de PDFs")
-        uploaded_pdfs = st.file_uploader("Adicione arquivos PDF", type="pdf", accept_multiple_files=True)
+        uploaded_pdfs = st.file_uploader("Adicione arquivos PDF", 
+                                         type="pdf", 
+                                         accept_multiple_files=True)
         if uploaded_pdfs:
             st.session_state['uploaded_pdfs'] = uploaded_pdfs
-            st.success(f"{len(uploaded_pdfs)} arquivo(s) carregado(s) com sucesso!")
+            st.success(f"{len(uploaded_pdfs)} arquivo(s) salvo(s) com sucesso!")
         
-        label_botao = "Inicializar Chatbot" if 'chain' not in st.session_state else "Atualizar Chatbot"
+        label_botao = "Inicializar Chatbot"
+        if "chain" in st.session_state:
+            label_botao = "Atualizar Chatbot"
         if st.button(label_botao, use_container_width=True):
-            if 'uploaded_pdfs' not in st.session_state or not st.session_state['uploaded_pdfs']:
-                st.error("Adicione arquivos PDF para inicializar o chatbot")
+            if 'uploaded_pdfs' not in st.session_state or len(st.session_state['uploaded_pdfs']) == 0:
+                st.error("Adicione arquivos pdf para inicializar o chatbot")
             else:
                 st.success("Inicializando o Chatbot...")
                 cria_chain_conversa(st.session_state['uploaded_pdfs'])
