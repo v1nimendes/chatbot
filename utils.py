@@ -9,6 +9,8 @@ import streamlit as st
 from dotenv import load_dotenv, find_dotenv
 from langchain.prompts import PromptTemplate
 import os
+import tempfile
+from langchain_community.document_loaders import PyPDFLoader
 
 # Carregar variáveis de ambiente
 load_dotenv(find_dotenv())
@@ -19,9 +21,19 @@ model_name = "gpt-3.5-turbo-0125"
 def importacao_documentos(uploaded_files):
     documentos = []
     for uploaded_file in uploaded_files:
-        loader = PyPDFLoader(uploaded_file)
+        # Salvar o arquivo PDF temporariamente
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_file:
+            temp_file.write(uploaded_file.getvalue())
+            temp_file_path = temp_file.name
+            
+        # Usar o caminho do arquivo temporário para o PyPDFLoader
+        loader = PyPDFLoader(temp_file_path)
         documentos_arquivo = loader.load()
         documentos.extend(documentos_arquivo)
+        
+        # Remover o arquivo temporário após o carregamento
+        os.remove(temp_file_path)
+        
     return documentos
 
 def split_documentos(documentos):
