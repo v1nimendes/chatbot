@@ -3,6 +3,7 @@ from utils import cria_chain_conversa, folder_files
 import streamlit as st
 
 openai_api_key = st.secrets["openai"]["api_key"]
+
 def chat_window():
     st.header("SensorChat", divider=True)
     if not 'chain' in st.session_state:
