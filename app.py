@@ -1,14 +1,16 @@
 import streamlit as st
-from utils import cria_chain_conversa, folder_files
-import streamlit as st
-
+from utils import cria_chain_conversa
 import os
-openai_api_key = os.getenv('OPENAI_API_KEY')
 
+# Certifique-se de que a chave da API OpenAI esteja configurada
+openai_api_key = os.getenv('OPENAI_API_KEY')
+if not openai_api_key:
+    st.error("A chave da API OpenAI não está configurada. Verifique as variáveis de ambiente.")
+    st.stop()
 
 def chat_window():
     st.header("SensorChat", divider=True)
-    if not 'chain' in st.session_state:
+    if 'chain' not in st.session_state:
         st.error("Faça o upload de PDFs para começar")
         st.stop()
     
@@ -27,38 +29,26 @@ def chat_window():
         chat.markdown(nova_mensagem)
         chat = container.chat_message("ai")
         chat.markdown("Gerando Resposta")
-        chain.invoke({"question": nova_mensagem})
+        resposta = chain({"question": nova_mensagem})
+        chat.markdown(resposta['answer'])
         st.rerun()
-
-def save_uploaded_files(uploaded_files, folder):
-    """Salva arquivos enviados na pasta especificada."""
-    # Remove arquivos antigos na pasta
-    for file in folder.glob("*.pdf"):
-        file.unlink()
-    # Salva novos arquivos enviados
-    for file in uploaded_files:
-        (folder / file.name).write_bytes(file.read())
 
 def main():
     with st.sidebar:
         st.header("Upload de PDFs")
-        uploaded_pdfs = st.file_uploader("Adicione arquivos PDF", 
-                                         type="pdf", 
-                                         accept_multiple_files=True)
+        uploaded_pdfs = st.file_uploader("Adicione arquivos PDF", type="pdf", accept_multiple_files=True)
         if uploaded_pdfs:
-            save_uploaded_files(uploaded_pdfs, folder_files)
-            st.success(f"{len(uploaded_pdfs)} arquivo(s) salvo(s) com sucesso!")
+            st.session_state['uploaded_pdfs'] = uploaded_pdfs
+            st.success(f"{len(uploaded_pdfs)} arquivo(s) carregado(s) com sucesso!")
         
-        label_botao = "Inicializar Chatbot"
-        if "chain" in st.session_state:
-            label_botao = "Atualizar Chatbot"
+        label_botao = "Inicializar Chatbot" if 'chain' not in st.session_state else "Atualizar Chatbot"
         if st.button(label_botao, use_container_width=True):
-            if len(list(folder_files.glob("*.pdf"))) == 0:
-                st.error("Adicione arquivos pdf para inicializar o chatbot")
+            if 'uploaded_pdfs' not in st.session_state or not st.session_state['uploaded_pdfs']:
+                st.error("Adicione arquivos PDF para inicializar o chatbot")
             else:
                 st.success("Inicializando o Chatbot...")
-                cria_chain_conversa()
-                st.rerun()
+                cria_chain_conversa(st.session_state['uploaded_pdfs'])
+                st.experimental_rerun()
     chat_window()
 
 if __name__ == "__main__":

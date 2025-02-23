@@ -1,16 +1,19 @@
 from langchain_community.document_loaders.pdf import PyPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_openai.embeddings import OpenAIEmbeddings
-from langchain_community.vectorstores.faiss import FAISS
-from langchain_openai.chat_models import ChatOpenAI
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import FAISS
+from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
-from langchain.chains.conversational_retrieval.base import ConversationalRetrievalChain
+from langchain.chains import ConversationalRetrievalChain
 import streamlit as st
 from dotenv import load_dotenv, find_dotenv
 from langchain.prompts import PromptTemplate
+import os
 
-_ = load_dotenv(find_dotenv())
+# Carregar variáveis de ambiente
+load_dotenv(find_dotenv())
 
+# Nome do modelo
 model_name = "gpt-3.5-turbo-0125"
 
 def importacao_documentos(uploaded_files):
