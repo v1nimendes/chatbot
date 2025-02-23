@@ -12,8 +12,8 @@ def chat_window():
     st.header("SensorChat", divider=True)
     if 'chain' not in st.session_state:
         st.error("Faça o upload de PDFs para começar")
-        st.stop()
-    
+        return  # Mudei de st.stop() para return
+
     chain = st.session_state["chain"]
     memory = chain.memory 
 
@@ -22,7 +22,7 @@ def chat_window():
     for mensagem in mensagens:
         chat = container.chat_message(mensagem.type)
         chat.markdown(mensagem.content)
-        
+
     nova_mensagem = st.chat_input("Converse com seus documentos")
     if nova_mensagem:
         chat = container.chat_message("human")
@@ -36,8 +36,8 @@ def main():
     with st.sidebar:
         st.header("Upload de PDFs")
         uploaded_pdfs = st.file_uploader("Adicione arquivos PDF", 
-                                         type="pdf", 
-                                         accept_multiple_files=True)
+                                           type="pdf", 
+                                           accept_multiple_files=True)
         if uploaded_pdfs:
             st.session_state['uploaded_pdfs'] = uploaded_pdfs
             st.success(f"{len(uploaded_pdfs)} arquivo(s) salvo(s) com sucesso!")
@@ -47,11 +47,13 @@ def main():
             label_botao = "Atualizar Chatbot"
         if st.button(label_botao, use_container_width=True):
             if 'uploaded_pdfs' not in st.session_state or len(st.session_state['uploaded_pdfs']) == 0:
-                st.error("Adicione arquivos pdf para inicializar o chatbot")
+                st.error("Adicione arquivos PDF para inicializar o chatbot")
             else:
                 st.success("Inicializando o Chatbot...")
                 cria_chain_conversa(st.session_state['uploaded_pdfs'])
-                st.experimental_rerun()
+                # Removido o st.experimental_rerun()
+                st.session_state['chain'] = cria_chain_conversa(st.session_state['uploaded_pdfs'])  # Atualiza a chain diretamente
+
     chat_window()
 
 if __name__ == "__main__":
