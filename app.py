@@ -9,7 +9,7 @@ if not openai_api_key:
     st.stop()
 
 def chat_window():
-    st.header("SensorChat", divider=True)
+    st.header("ChatBot", divider=True)
     if 'chain' not in st.session_state:
         st.error("Faça o upload de PDFs para começar")
         return  # Mudei de st.stop() para return
@@ -58,3 +58,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
